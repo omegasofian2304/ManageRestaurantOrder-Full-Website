@@ -10,10 +10,13 @@ import employeeRouter from "./routes/employeeRoutes.js";
 import errorMiddleware from './middlewares/errorMiddleware.js'
 import mealRouter from "./routes/mealRoutes.js";
 import authRouter from "./routes/authRoutes.js";
+import {swaggerServe, swaggerSetup} from "./config/swagger.js";
 
 const app = express();
 
 app.use(express.json());
+
+app.use("/api-docs", swaggerServe, swaggerSetup);
 
 app.use("/orders", orderRoute);
 
