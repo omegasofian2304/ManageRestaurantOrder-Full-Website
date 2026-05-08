@@ -22,6 +22,7 @@
 import MealSearchBar from '../components/meals/MealsSearchBar.vue';
 import MealCard from '../components/meals/MealCard.vue';
 import { fetchAllMealsService } from '../services/mealsService';
+import {useAuthStore} from "@/stores/authStore.js";
 
 export default {
   name: 'MealsView',
@@ -56,12 +57,13 @@ export default {
   },
 
   methods: {
-    async loadMeals(token) {
+    async loadMeals() {
       this.isLoading = true;
       this.error = null;
 
       try {
-        this.meals = await fetchAllMealsService(token);
+        const authStore = useAuthStore();
+        this.meals = await fetchAllMealsService(authStore.accessToken);
       } catch (error) {
         this.error = error.message;
       } finally {
