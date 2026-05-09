@@ -1,4 +1,4 @@
-<!--
+ça <!--
 Author : Jason Edmonds, Sofian Hussein, Milo Soupper, Rodrigo Silva Riço
 Date : 08.05.2026
 Title : MealsListView.vue
@@ -12,13 +12,7 @@ export default {
   components: { MealCard },
   props: {
     meals: {
-      type: Array,
-      default: () => [
-        { id: 1, name: 'Big Burger', description: 'Double steak, cheddar, sauce maison', price: 9.50, is_available: true },
-        { id: 2, name: 'Cheeseburger', description: 'Steak 100% bœuf, cheddar, cornichons', price: 7.90, is_available: true },
-        { id: 3, name: 'Veggie Wrap', description: 'Galette, falafel, légumes, houmous', price: 8.20, is_available: false },
-        { id: 4, name: 'Frites', description: 'Frites fraîches, portion moyenne', price: 3.50, is_available: true },
-      ]
+      type: Array
     }
   }
 }

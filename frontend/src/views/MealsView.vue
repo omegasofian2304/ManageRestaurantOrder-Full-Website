@@ -6,21 +6,13 @@
 
     <div v-else-if="error">{{ error }}</div>
 
-    <div v-else>
-      <MealCard
-          v-for="meal in filteredMeals"
-          :key="meal.id"
-          :meal="meal"
-          @click="selectMeal(meal)"
-      />
-      <div v-if="filteredMeals.length === 0">No meals found</div>
-    </div>
+    <MealsListView v-else :meals="filteredMeals" />
   </div>
 </template>
 
 <script>
 import MealSearchBar from '../components/meals/MealsSearchBar.vue';
-import MealCard from '../components/meals/MealCard.vue';
+import MealsListView from '../views/MealsListView.vue';
 import { fetchAllMealsService } from '../services/mealsService';
 import {useAuthStore} from "@/stores/authStore.js";
 
@@ -29,7 +21,7 @@ export default {
 
   components: {
     MealSearchBar,
-    MealCard
+    MealsListView
   },
 
   data() {

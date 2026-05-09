@@ -2,12 +2,11 @@
   <div>
     <!--Search bar to search for a meal by its name-->
     <input
-        v-model="searchQuery"
+        v-model="search"
         type="text"
         placeholder="Search meal"
+        @input="handleSearch"
     />
-    <!--Button to execute the function that will get the meal by its name-->
-    <button @click="handleSearch">Search</button>
   </div>
 </template>
 
@@ -23,9 +22,7 @@ export default {
 
   methods: {
     handleSearch() {
-      if (this.search.trim()) {
-        this.$emit('search', this.search.trim());
-      }
+      this.$emit('search', this.search.trim());
     }
   }
 };
