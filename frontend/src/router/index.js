@@ -2,11 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/login.vue';
 import {useAuthStore } from "@/stores/authStore.js";
 import MealsView from "@/views/MealsView.vue";
+import OrdersView from "@/views/OrdersView.vue";
 
 const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', component: Login, name: 'login' },
-    { path: '/meals', component: MealsView, name: 'meals', meta: { requiresAuth: true } }
+    { path: '/meals', component: MealsView, name: 'meals', meta: { requiresAuth: true } },
+    { path: '/orders', component: OrdersView, name: 'orders', meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({
@@ -28,13 +30,13 @@ router.beforeEach(async (to) => {
         return '/login'
     }
 
-    // admin verification
+    // manager verification
     if (to.meta.requiresManager && authStore.post !== 'admin' && authStore.post !== 'manager') {
         return '/login'
     }
 
     if (to.path === '/login' && !authStore.isTokenExpired) {
-        return '/home'
+        return '/meals'
     }
 })
 
