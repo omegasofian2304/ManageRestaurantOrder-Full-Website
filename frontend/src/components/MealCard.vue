@@ -26,7 +26,7 @@ export default {
 
     <!-- Price -->
     <td class="px-5 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-      {{ meal.price.toFixed(2) }} €
+      {{ parseFloat(meal.price).toFixed(2) }} €
     </td>
 
     <!-- Availability -->

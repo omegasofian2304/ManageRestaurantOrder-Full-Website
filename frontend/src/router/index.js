@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/login.vue';
 import {useAuthStore } from "@/stores/authStore.js";
+import MealsView from "@/views/MealsView.vue";
 
 const routes = [
-    { path: '/login', component: Login, name: 'login' }
+    { path: '/', redirect: '/login' },
+    { path: '/login', component: Login, name: 'login' },
+    { path: '/meals', component: MealsView, name: 'meals', meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({
