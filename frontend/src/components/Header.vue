@@ -39,10 +39,10 @@ onMounted(async () => {
       </div>
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-          <li><button :style="{ color: currentPage === 1 ? 'orange' : '', textDecoration: currentPage === 1 ? 'underline' : '' }">Nouvelle comande</button></li>
-          <li><button :style="{ color: currentPage === 2 ? 'orange' : '', textDecoration: currentPage === 2 ? 'underline' : '' }">Commandes</button></li>
-          <li><button :style="{ color: currentPage === 3 ? 'orange' : '', textDecoration: currentPage === 3 ? 'underline' : '' }">Menu</button></li>
-          <li><button :style="{ color: currentPage === 4 ? 'orange' : '', textDecoration: currentPage === 4 ? 'underline' : '' }">Équipe</button></li>
+          <li><button class="px-2" :style="{ color: currentPage === 1 ? 'orange' : '', textDecoration: currentPage === 1 ? 'underline' : '' }">Nouvelle comande</button></li>
+          <li><button class="px-2" :style="{ color: currentPage === 2 ? 'orange' : '', textDecoration: currentPage === 2 ? 'underline' : '' }">Commandes</button></li>
+          <li><button class="px-2" :style="{ color: currentPage === 3 ? 'orange' : '', textDecoration: currentPage === 3 ? 'underline' : '' }">Menu</button></li>
+          <li><button class="px-2" :style="{ color: currentPage === 4 ? 'orange' : '', textDecoration: currentPage === 4 ? 'underline' : '' }">Équipe</button></li>
         </ul>
       </div>
       <div class="navbar-end">
