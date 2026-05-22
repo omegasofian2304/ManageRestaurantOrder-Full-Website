@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'; // ✅ Importe ref et onMounted
+import { ref, onMounted } from 'vue';
 import { fetchAllOrdersService } from "@/services/ordersService.js";
 import { useAuthStore } from "@/stores/authStore.js";
 
@@ -76,10 +76,12 @@ const formatTime = (dateString) => {
           </div>
 
           <!-- Search + sort container -->
+          <!--
           <div class="flex items-center gap-3">
             <input />
             <select />
           </div>
+          -->
         </div>
 
         <!-- table -->
@@ -87,7 +89,7 @@ const formatTime = (dateString) => {
 
           <!-- Header row -->
           <thead>
-          <tr class="border-b border-gray-200">
+          <tr class="border-b border-gray-200 text-gray-900">
             <th class="px-7 py-4 text-left">ID</th>
             <th class="px-7 py-4 text-left">Client</th>
             <th class="px-7 py-4 text-left">Heure</th>
@@ -97,24 +99,24 @@ const formatTime = (dateString) => {
           </thead>
 
           <tbody>
-          <tr v-for="order in orders" class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
-            <td class="px-7 py-4">
-                #{{ order.id }}
+          <tr v-for="order in orders" class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-gray-900">
+            <td class="px-7 py-4 text-gray-900">
+              #{{ order.id }}
             </td>
-            <td class="px-7 py-4">
+            <td class="px-7 py-4 text-gray-900">
               {{ order.client_name }}
             </td>
-            <td class="px-7 py-4">
+            <td class="px-7 py-4 text-gray-900">
               <div class="text-sm font-medium text-gray-900">
-                 à {{ formatTime(order.creation_date) }} le {{ formatDate(order.creation_date) }}
+                à {{ formatTime(order.creation_date) }} le {{ formatDate(order.creation_date) }}
               </div>
             </td>
-            <td class="px-8 py-4 font-semibold">
+            <td class="px-8 py-4 font-semibold text-gray-900">
               {{ order.total_price }} CHF
             </td>
             <td class="px-8 py-4">
-              <p v-if="order.order_served=1" class="text-green-500">Servie</p>
-              <p v-if="order.order_served=0" class="text-orange-500">En cours</p>
+              <p v-if="order.order_served==1" class="text-green-500 font-medium">Servie</p>
+              <p v-else class="text-orange-500 font-medium">En cours</p>
             </td>
             <td class="px-8 py-4">
               <button class="bg-orange-500 p-3 font-bold text-white rounded-xl"> Voir détail</button>
