@@ -99,6 +99,6 @@ async function handleLogin() {
 
   email.value = ''
   password.value = ''
-  await router.push('/employees/create')
+  await router.push('/orders')
 }
 </script>
