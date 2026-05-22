@@ -1,6 +1,6 @@
 <script>
 import { useAuthStore } from "@/stores/authStore.js";
-import { getOrderDetailService } from "@/services/orderService.js";
+import { getOrderDetailService } from "@/services/ordersService.js";
 import MealCardOrder from "@/components/MealCardOrder.vue";
 
 export default {
