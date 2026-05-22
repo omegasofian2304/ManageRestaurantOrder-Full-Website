@@ -3,12 +3,14 @@ import Login from '../views/login.vue';
 import {useAuthStore } from "@/stores/authStore.js";
 import MealsView from "@/views/MealsView.vue";
 import CreateEmployeeView from "@/views/CreateEmployeeView.vue";
+import OrderDetailView from "@/views/OrderDetailView.vue";
 
 const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', component: Login, name: 'login' },
     { path: '/meals', component: MealsView, name: 'meals', meta: { requiresAuth: true } },
-    { path: '/employees/create', component: CreateEmployeeView, name: 'createEmployee', meta: { requiresAuth: true, requiresAdmin: true } }
+    { path: '/employees/create', component: CreateEmployeeView, name: 'createEmployee', meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/orders/:id', component: OrderDetailView, name: 'orderDetail', meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({
