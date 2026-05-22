@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/login.vue';
+import Login from '../views/Login.vue';
 import {useAuthStore } from "@/stores/authStore.js";
 import MealsView from "@/views/MealsView.vue";
 import OrdersView from "@/views/OrdersView.vue";

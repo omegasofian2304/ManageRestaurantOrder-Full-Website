@@ -11,13 +11,13 @@ const error = ref(null);
 
 onMounted(async () => {
   try {
-    if (!authStore.token) {
+    if (!authStore.accessToken) {
       error.value = "Aucun token trouvé. Veuillez vous reconnecter.";
       loading.value = false;
       return;
     }
 
-    orders.value = await fetchAllOrdersService(authStore.token);
+    orders.value = await fetchAllOrdersService(authStore.accessToken);
     console.log('Commandes chargées:', orders.value);
   } catch (err) {
     error.value = err.message;
@@ -26,6 +26,24 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('fr-CH', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(date);
+};
+
+const formatTime = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('fr-CH', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
 </script>
 
 <template>
@@ -43,7 +61,7 @@ onMounted(async () => {
           <h1 class="font-bold text-gray-900 text-3xl mb-3">Commandes</h1>
           <p class="text-gray-500 text-m">Toutes les commandes en cours.</p>
         </div>
-        <button>Nouvelle commande</button>
+        <button class="bg-orange-500 p-3 font-bold text-white rounded-xl"> Nouvelle commande</button>
       </div>
 
       <!-- CARD CONTAINER -->
@@ -70,35 +88,36 @@ onMounted(async () => {
           <!-- Header row -->
           <thead>
           <tr class="border-b border-gray-200">
-            <th>ID</th>
-            <th>Client</th>
-            <th>Heure</th>
-            <th>Plats</th>
-            <th>Total</th>
-            <th>Statut</th>
-            <th>Employé</th>
+            <th class="px-7 py-4 text-left">ID</th>
+            <th class="px-7 py-4 text-left">Client</th>
+            <th class="px-7 py-4 text-left">Heure</th>
+            <th class="px-7 py-4 text-left">Total</th>
+            <th class="px-7 py-4 text-left">Statut</th>
           </tr>
           </thead>
 
           <tbody>
           <tr v-for="order in orders" class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
-            <td>
-                {{ order.id }}
+            <td class="px-7 py-4">
+                #{{ order.id }}
             </td>
-            <td>
+            <td class="px-7 py-4">
               {{ order.client_name }}
             </td>
-            <td>
-              {{ order.creation_date }}
+            <td class="px-7 py-4">
+              <div class="text-sm font-medium text-gray-900">
+                 à {{ formatTime(order.creation_date) }} le {{ formatDate(order.creation_date) }}
+              </div>
             </td>
-            <td>
-              {{ order.total_price }}
+            <td class="px-8 py-4 font-semibold">
+              {{ order.total_price }} CHF
             </td>
-            <td>
-              {{ order.order_served }}
+            <td class="px-8 py-4">
+              <p v-if="order.order_served=1" class="text-green-500">Servie</p>
+              <p v-if="order.order_served=0" class="text-orange-500">En cours</p>
             </td>
-            <td>
-              {{ order.employee_id }}
+            <td class="px-8 py-4">
+              <button class="bg-orange-500 p-3 font-bold text-white rounded-xl"> Voir détail</button>
             </td>
           </tr>
           </tbody>
