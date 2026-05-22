@@ -6,10 +6,12 @@ Desc : This file display the list of meals from meal cards
 -->
 <script>
 import MealCard from '../components/meals/MealCard.vue'
+import MealCard from '../components/MealCard.vue'
+import Header from '../components/Header.vue'
 
 export default {
   name: 'MealsMenu',
-  components: { MealCard },
+  components: { MealCard , Header },
   props: {
     meals: {
       type: Array
@@ -19,6 +21,7 @@ export default {
 </script>
 
 <template>
+  <Header />
   <div class="m-6 bg-white border border-gray-200 rounded-xl overflow-hidden">
     <table class="w-full border-collapse">
       <thead>
