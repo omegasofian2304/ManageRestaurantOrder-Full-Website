@@ -5,6 +5,7 @@ Title : OrderDetailView.vue
 Desc : This file is used to display details from specified orders
 -->
 <template>
+  <Header />
   <div class="min-h-screen bg-gray-100 p-8">
 
     <!-- Breadcrumb -->
@@ -121,6 +122,7 @@ Desc : This file is used to display details from specified orders
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TableMealOrder from '@/components/TableMealOrder.vue'
+import Header from "@/components/Header.vue";
 
 const route = useRoute()
 const orderId = computed(() => route.params.id)

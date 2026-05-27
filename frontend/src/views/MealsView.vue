@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div>
     <MealSearchBar @search="handleSearch" />
 
@@ -15,11 +16,13 @@ import MealSearchBar from '../components/meals/MealsSearchBar.vue';
 import MealsListView from '../views/MealsListView.vue';
 import { fetchAllMealsService } from '../services/mealsService';
 import {useAuthStore} from "@/stores/authStore.js";
+import Header from "@/components/Header.vue";
 
 export default {
   name: 'MealsView',
 
   components: {
+    Header,
     MealSearchBar,
     MealsListView
   },

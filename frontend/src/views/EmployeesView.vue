@@ -116,8 +116,8 @@ function toggleSort() {
 </script>
 
 <template>
+  <Header />
   <div class="min-h-screen bg-gray-50">
-    <Header :currentPage="4" />
 
     <main class="max-w-7xl mx-auto px-6 py-10">
 
