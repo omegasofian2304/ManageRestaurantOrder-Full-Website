@@ -6,6 +6,7 @@ import CreateEmployeeView from "@/views/CreateEmployeeView.vue";
 import OrderDetailView from "@/views/OrderDetailView.vue";
 import EmployeesView from "@/views/EmployeesView.vue";
 import OrdersView from "@/views/OrdersView.vue";
+import CreateOrderView from '@/views/CreateOrderView.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
@@ -14,7 +15,8 @@ const routes = [
     { path: '/employees/create', component: CreateEmployeeView, name: 'createEmployee', meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/orders/:id', component: OrderDetailView, name: 'orderDetail', meta: { requiresAuth: true } },
     { path: '/employees', component: EmployeesView, name: 'employees', meta: { requiresAuth: true, requiresManager: true } },
-    { path: '/orders', component: OrdersView, name: 'orders', meta: { requiresAuth: true } }
+    { path: '/orders', component: OrdersView, name: 'orders', meta: { requiresAuth: true } },
+    { path: '/orders/new', component: CreateOrderView, name: 'createOrder', meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({
@@ -42,7 +44,7 @@ router.beforeEach(async (to) => {
     }
 
     if (to.path === '/login' && !authStore.isTokenExpired) {
-        return '/meals'
+        return '/orders/new'
     }
 })
 
