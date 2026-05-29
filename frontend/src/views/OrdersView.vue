@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { fetchAllOrdersService } from "@/services/ordersService.js";
 import { useAuthStore } from "@/stores/authStore.js";
+import Header from "@/components/Header.vue";
 
 const authStore = useAuthStore();
 
@@ -47,11 +48,8 @@ const formatTime = (dateString) => {
 </script>
 
 <template>
+  <Header />
   <div class="min-h-screen bg-gray-50">
-
-    <!-- Header -->
-    <nav class="bg-white border-b border-gray-200 px-6 py-4">
-    </nav>
 
     <!-- Main -->
     <main class="max-w-7xl mx-auto px-6 py-8">
@@ -119,7 +117,9 @@ const formatTime = (dateString) => {
               <p v-else class="text-orange-500 font-medium">En cours</p>
             </td>
             <td class="px-8 py-4">
-              <button class="bg-orange-500 p-3 font-bold text-white rounded-xl"> Voir détail</button>
+              <router-link :to="`/orders/${order.id}`" class="inline-block bg-orange-500 px-4 py-3 font-bold text-white rounded-xl">
+                Voir détail
+              </router-link>
             </td>
           </tr>
           </tbody>

@@ -20,7 +20,6 @@ export default {
 </script>
 
 <template>
-  <Header />
   <div class="m-6 bg-white border border-gray-200 rounded-xl overflow-hidden">
     <table class="w-full border-collapse bg-white">
       <thead>
