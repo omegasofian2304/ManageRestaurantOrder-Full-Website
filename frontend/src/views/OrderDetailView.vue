@@ -1,6 +1,6 @@
 <!--
 Author : Jason Edmonds, Milo Soupper, Sofian Hussein, Rodrigo Silva Riço
-Date : 21.05.2026
+Date : 22.05.2026
 Title : OrderDetailView.vue
 Desc : This file is used to display details from specified orders
 -->
@@ -20,8 +20,11 @@ Desc : This file is used to display details from specified orders
       <div>
         <div class="flex items-center gap-3 mb-1">
           <h1 class="text-3xl font-bold text-gray-800">Commande #{{ orderId }} - {{ order?.client_name ?? '...' }}</h1>
-          <span class="bg-orange-100 text-orange-500 text-sm font-medium px-3 py-1 rounded-full">
-            En cours
+          <span
+            :class="order?.order_served ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-500'"
+            class="text-sm font-medium px-3 py-1 rounded-full"
+          >
+            {{ order?.order_served ? 'Servie' : 'En cours' }}
           </span>
         </div>
         <p class="text-sm text-gray-400">Créée le {{ formattedDate }} · Employé : {{ order?.employee_id ?? '...' }}</p>
@@ -45,12 +48,15 @@ Desc : This file is used to display details from specified orders
       <div class="flex-1 bg-white rounded-xl shadow-sm p-6">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-base font-semibold text-gray-800">Plats de la commande</h2>
-          <button class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          <button
+            v-if="!order?.order_served"
+            @click="showAddMeal = true"
+            class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
             + Ajouter un plat
           </button>
         </div>
 
-        <TableMealOrder :orderId="orderId" @loaded="onOrderLoaded" />
+        <TableMealOrder ref="tableMealOrderRef" :orderId="orderId" @loaded="onOrderLoaded" />
       </div>
 
       <!-- Colonne droite : récapitulatif -->
@@ -116,18 +122,28 @@ Desc : This file is used to display details from specified orders
       </div>
     </div>
   </div>
+
+  <AddMealModal
+    v-if="showAddMeal"
+    :orderId="orderId"
+    @close="showAddMeal = false"
+    @added="tableMealOrderRef.loadMeals()"
+  />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TableMealOrder from '@/components/TableMealOrder.vue'
+import AddMealModal from '@/components/AddMealModal.vue'
 import Header from "@/components/Header.vue";
 
 const route = useRoute()
 const orderId = computed(() => route.params.id)
 
 const order = ref(null)
+const showAddMeal = ref(false)
+const tableMealOrderRef = ref(null)
 
 function onOrderLoaded(loadedOrder) {
   order.value = loadedOrder
