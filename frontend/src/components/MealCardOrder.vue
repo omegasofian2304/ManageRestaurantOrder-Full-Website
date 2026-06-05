@@ -22,9 +22,7 @@ export default {
 
     <!-- Quantity -->
     <td class="px-5 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-      <button>+</button>
       {{ meal.quantity }}
-      <button>-</button>
     </td>
 
     <!-- Total price -->
