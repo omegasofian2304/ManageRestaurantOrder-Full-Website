@@ -10,8 +10,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 import { useAuthStore } from '../stores/authStore'
-import { getAllEmployeesService } from '../services/employeeService'
+import {deleteEmployee, getAllEmployeesService} from '../services/employeeService'
 import Header from '../components/Header.vue'
+import { updateEmployee } from '../services/employeeService'
 
 const authStore = useAuthStore()
 
@@ -22,6 +23,33 @@ const errorMessage = ref(null)
 const activeFilter = ref('tous')
 const searchQuery = ref('')
 const sortOrder = ref('asc')
+const editingEmployee = ref(null)
+const editForm = ref({ first_name: '', last_name: '', email: '',password: '', post: '' })
+
+function openEdit(employee) {
+  editingEmployee.value = employee
+  editForm.value = {
+    firstname: employee.first_name,
+    lastname: employee.last_name,
+    email: employee.email,
+    post: employee.post,
+    password: employee.password
+  }
+}
+
+function closeEdit() {
+  editingEmployee.value = null
+}
+
+async function saveEdit() {
+  try {
+    await updateEmployee(authStore.accessToken, editingEmployee.value.id, editForm.value)
+    closeEdit()
+    employees.value = await getAllEmployeesService(authStore.accessToken)
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 // lifecycle
 onMounted(async () => {
@@ -108,11 +136,22 @@ function formatDate(dateString) {
   })
 }
 
-
 // to sort by name ascending or descending
 function toggleSort() {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
 }
+
+async function deleteEmployeeVue(id) {
+  if (window.confirm('Es-tu sûr de vouloir supprimer ?')) {
+    try {
+      await deleteEmployee(authStore.accessToken, id)
+      employees.value = employees.value.filter(e => e.id !== id)
+    } catch (error) {
+      errorMessage.value = "Impossible de supprimer l'employé. Veuillez réessayer."
+    }
+  }
+}
+
 </script>
 
 <template>
@@ -227,6 +266,70 @@ function toggleSort() {
         <div class="w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
+      <div v-if="editingEmployee" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; padding: 24px; border-radius: 12px;">
+          <div class="flex flex-col gap-3">
+            <div class="flex gap-3">
+              <div class="flex flex-col gap-1 w-1/2">
+                <label class="text-sm font-medium text-gray-700">Prénom</label>
+                <input
+                    v-model="editForm.firstname"
+                    type="text"
+                    placeholder="Jean"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                />
+              </div>
+              <div class="flex flex-col gap-1 w-1/2">
+                <label class="text-sm font-medium text-gray-700">Nom</label>
+                <input
+                    v-model="editForm.lastname"
+                    type="text"
+                    placeholder="Dupont"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-gray-700">Email</label>
+              <input
+                  v-model="editForm.email"
+                  type="email"
+                  placeholder="exemple@email.com"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-gray-700">Mot de passe</label>
+              <input
+                  v-model="editForm.password"
+                  type="password"
+                  placeholder="Password"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-gray-700">Rôle</label>
+              <select
+                  v-model="editForm.post"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              >
+                <option value="" disabled>Sélectionner un rôle</option>
+                <option value="employee">Employé</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="flex gap-3">
+              <button @click="closeEdit" class="px-5 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">Fermer</button>
+              <button @click="saveEdit" class="px-5 py-2 rounded-full bg-green-500 hover:bg-green-600 text-white font-medium transition-colors">Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Employees table -->
       <div v-else-if="!errorMessage" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="w-full text-sm">
@@ -235,7 +338,6 @@ function toggleSort() {
             <th class="text-left text-gray-500 font-medium px-6 py-3">Employé</th>
             <th class="text-left text-gray-500 font-medium px-6 py-3">Email</th>
             <th class="text-left text-gray-500 font-medium px-6 py-3">Rôle</th>
-            <th class="text-left text-gray-500 font-medium px-6 py-3">Créé le</th>
             <th
                 v-if="isAdmin"
                 class="text-left text-gray-500 font-medium px-6 py-3"
@@ -273,19 +375,17 @@ function toggleSort() {
               <span :class="getRoleBadgeClass(employee.post)">{{ employee.post }}</span>
             </td>
 
-            <!-- Date -->
-            <td class="px-6 py-3 text-gray-500">{{ formatDate(employee.created_at) }}</td>
 
             <!-- Actions (only for admin) -->
             <td v-if="isAdmin" class="px-6 py-3">
               <div class="flex items-center gap-4">
-                <button class="text-blue-500 hover:text-blue-700 flex items-center gap-1 text-sm transition-colors">
+                <button @click="openEdit(employee)" class="text-blue-500 hover:text-blue-700 flex items-center gap-1 text-sm transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z"/>
                   </svg>
                   Éditer
                 </button>
-                <button class="text-red-400 hover:text-red-600 flex items-center gap-1 text-sm transition-colors">
+                <button @click="deleteEmployeeVue(employee.id)" class="text-red-400 hover:text-red-600 flex items-center gap-1 text-sm transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -294,7 +394,6 @@ function toggleSort() {
               </div>
             </td>
           </tr>
-
           <!-- If there are no employees (empty) -->
           <tr v-if="filteredEmployees.length === 0">
             <td colspan="5" class="text-center text-gray-400 py-12 text-sm">

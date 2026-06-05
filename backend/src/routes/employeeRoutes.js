@@ -19,7 +19,7 @@ const router = Router();
 
 router.get("/", authMiddleware, requireRole(["admin","manager"]), findAllEmployeesController);
 
-router.get("/:id", authMiddleware, requireRole(["admin","manager"]),findEmployeeByIDController);
+router.get("/:id", authMiddleware,findEmployeeByIDController);
 
 router.post("/", authMiddleware, requireRole(["admin"]), createEmployeeController);
 
