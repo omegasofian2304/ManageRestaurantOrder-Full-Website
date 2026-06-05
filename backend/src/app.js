@@ -25,7 +25,7 @@ app.use(cors({
 app.use(express.json());
 
 // Max 100 requests every 15 minutes
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(rateLimit({ windowMs: 1005 * 60 * 1000, max: 100 }));
 
 app.use(helmet());
 

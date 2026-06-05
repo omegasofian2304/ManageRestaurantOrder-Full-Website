@@ -8,79 +8,61 @@ Desc : Modal to add meals to an existing order
   <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6" @click.self="$emit('close')">
     <div class="bg-gray-100 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
 
-      <!-- Header modale -->
       <div class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100">
         <h2 class="text-lg font-bold text-gray-800">Ajouter des plats · Commande #{{ orderId }}</h2>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 text-xl font-light leading-none">✕</button>
       </div>
 
-      <!-- Contenu -->
       <div class="flex gap-6 p-6 overflow-hidden flex-1 min-h-0">
 
-        <!-- Colonne gauche : grille des plats -->
-        <div class="flex-1 bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 overflow-hidden">
+        <div class="flex-1 bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 overflow-hidden min-h-0">
           <h3 class="text-base font-semibold text-gray-800">Menu</h3>
 
           <div v-if="mealsLoading" class="text-gray-400 text-sm">Chargement...</div>
           <div v-else-if="mealsError" class="text-red-400 text-sm">{{ mealsError }}</div>
-          <div v-else class="grid grid-cols-3 gap-4 overflow-y-auto">
+          <div v-else class="flex flex-col gap-3 overflow-y-auto pr-2" style="height: 500px;">
             <div
-              v-for="meal in meals"
-              :key="meal.id"
-              class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm"
+                v-for="meal in meals"
+                :key="meal.id"
+                class="bg-white border border-gray-100 rounded-xl p-3 flex items-center justify-between shadow-sm"
             >
-              <div class="h-24 w-full" :style="{ backgroundColor: meal.color || '#f3f4f6' }"></div>
-              <div class="p-3">
-                <p class="text-sm font-semibold text-gray-800">{{ meal.name }}</p>
-                <div class="flex items-center justify-between mt-1">
-                  <p v-if="meal.is_available === 1" class="text-sm text-gray-500">{{ Number(meal.price).toFixed(2) }} €</p>
-                  <p v-else class="text-sm text-red-400">Indisponible</p>
-                  <button
-                    v-if="meal.is_available === 1"
-                    @click="addToCart(meal)"
-                    class="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-full text-lg flex items-center justify-center transition-colors"
-                  >+</button>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg shrink-0" :style="{ backgroundColor: meal.color || '#f3f4f6' }"></div>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800">{{ meal.name }}</p>
+                  <p v-if="meal.is_available === 1" class="text-xs text-gray-400">{{ Number(meal.price).toFixed(2) }} €</p>
+                  <p v-else class="text-xs text-red-400">Indisponible</p>
                 </div>
               </div>
+              <button
+                  v-if="meal.is_available === 1"
+                  @click="addToCart(meal)"
+                  class="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-full text-lg flex items-center justify-center transition-colors shrink-0"
+              >+</button>
             </div>
           </div>
         </div>
 
-        <!-- Colonne droite : récap des ajouts -->
         <div class="w-72 flex flex-col gap-4">
-          <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 flex-1 overflow-hidden">
+          <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 flex-1 overflow-hidden min-h-0">
             <h3 class="text-base font-bold text-gray-800">À ajouter</h3>
 
-            <!-- Liste -->
             <div class="flex flex-col gap-3 flex-1 overflow-y-auto">
-              <div
-                v-for="item in cart"
-                :key="item.meal_id"
-                class="flex flex-col gap-0.5"
-              >
+              <div v-for="item in cart" :key="item.meal_id" class="flex flex-col gap-0.5">
                 <p class="text-sm font-semibold text-gray-800">{{ item.name }}</p>
                 <div class="flex items-center justify-between">
                   <p class="text-xs text-gray-400">{{ item.price.toFixed(2) }} € · ×{{ item.quantity }}</p>
                   <div class="flex items-center gap-2">
-                    <button
-                      @click="decrement(item.meal_id)"
-                      class="w-6 h-6 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm"
-                    >−</button>
+                    <button @click="decrement(item.meal_id)" class="w-6 h-6 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm">−</button>
                     <span class="text-sm font-medium w-4 text-center">{{ item.quantity }}</span>
-                    <button
-                      @click="addToCart({ id: item.meal_id, name: item.name, price: item.price, color: item.color, is_available: 1 })"
-                      class="w-6 h-6 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm"
-                    >+</button>
+                    <button @click="addToCart({ id: item.meal_id, name: item.name, price: item.price, color: item.color, is_available: 1 })" class="w-6 h-6 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm">+</button>
                   </div>
                 </div>
               </div>
 
-              <p v-if="cart.length === 0" class="text-sm text-gray-300 text-center mt-4">
-                Aucun plat sélectionné
-              </p>
+              <p v-if="cart.length === 0" class="text-sm text-gray-300 text-center mt-4">Aucun plat sélectionné</p>
             </div>
 
-            <!-- Total ajout -->
             <div v-if="cart.length > 0" class="border-t border-gray-100 pt-4 text-sm">
               <div class="flex justify-between font-bold text-gray-800 text-base">
                 <span>Total ajout</span>
@@ -89,14 +71,12 @@ Desc : Modal to add meals to an existing order
             </div>
           </div>
 
-          <!-- Erreur API -->
           <p v-if="error" class="text-red-400 text-xs text-center">{{ error }}</p>
 
-          <!-- Bouton confirmer -->
           <button
-            @click="confirm"
-            :disabled="cart.length === 0 || loading"
-            class="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors"
+              @click="confirm"
+              :disabled="cart.length === 0 || loading"
+              class="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors"
           >
             {{ loading ? 'Ajout en cours...' : `Confirmer (${cart.length} plat${cart.length > 1 ? 's' : ''})` }}
           </button>
@@ -131,8 +111,11 @@ const cartTotal = computed(() => cart.value.reduce((sum, i) => sum + i.price * i
 onMounted(async () => {
   mealsLoading.value = true
   try {
-    meals.value = await fetchAllMealsService(authStore.accessToken)
-  } catch {
+    const result = await fetchAllMealsService(authStore.accessToken)
+    console.log('meals:', result)
+    meals.value = result
+  } catch (e) {
+    console.log('erreur:', e)
     mealsError.value = 'Impossible de charger les plats.'
   } finally {
     mealsLoading.value = false

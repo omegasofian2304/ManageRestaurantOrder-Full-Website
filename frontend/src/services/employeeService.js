@@ -49,3 +49,47 @@ export async function createEmployeeService(token, data) {
 
     return result
 }
+
+export async function deleteEmployee(token, employeeId) {
+    const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        }
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+        const error = new Error(result.error || 'Failed to delete employee')
+        error.status = response.status
+        throw error
+    }
+
+    return result
+}
+
+export async function updateEmployee(token, employeeId, data) {
+    const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    })
+
+    const text = await response.text()
+    console.log('response status:', response.status)
+    console.log('response body:', text)
+    const result = text ? JSON.parse(text) : {}
+
+    if (!response.ok) {
+        const error = new Error(result.error || 'Failed to update employee')
+        error.status = response.status
+        throw error
+    }
+
+    return result
+}
