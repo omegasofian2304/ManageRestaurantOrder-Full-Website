@@ -1,9 +1,93 @@
- <!--
-Author : Jason Edmonds, Sofian Hussein, Milo Soupper, Rodrigo Silva Riço
-Date : 08.05.2026
-Title : CreateOrderView.vue
-Desc : This file is used to create new orders
--->
+<script setup>
+
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useOrderStore } from '@/stores/orderStore'
+import { fetchAllMealsService } from '@/services/mealsService'
+import Header from '@/components/Header.vue'
+
+const authStore  = useAuthStore()
+const orderStore = useOrderStore()
+
+// --- State ---
+const meals          = ref([])
+const mealsLoading   = ref(false)
+const mealsError     = ref('')
+const clientNameInput = ref(orderStore.clientName)
+
+const activeCategory = ref('tous')  // 'tous' | clé de CATEGORIES
+const searchQuery    = ref('')
+
+/*
+  Même logique que MealsView : catégorie détectée sur le nom du plat.
+  Adapte les keywords à ta carte.
+*/
+const CATEGORIES = [
+  { key: 'burger',  label: 'Burgers',  keywords: ['burger'] },
+  { key: 'pizza',   label: 'Pizzas',   keywords: ['pizza'] },
+]
+
+function getMealCategory(meal) {
+  const name = meal.name.toLowerCase()
+  for (const cat of CATEGORIES) {
+    if (cat.keywords.some(kw => name.includes(kw))) return cat.key
+  }
+  return 'autre'
+}
+
+// --- Chargement ---
+onMounted(async () => {
+  mealsLoading.value = true
+  try {
+    meals.value = await fetchAllMealsService(authStore.accessToken)
+  } catch {
+    mealsError.value = 'Impossible de charger les plats.'
+  } finally {
+    mealsLoading.value = false
+  }
+})
+
+// --- Computed : filtre catégorie + recherche ---
+const filteredMeals = computed(() => {
+  let result = [...meals.value]
+
+  // Filtre catégorie
+  if (activeCategory.value !== 'tous') {
+    result = result.filter(m => getMealCategory(m) === activeCategory.value)
+  }
+
+  // Recherche par nom
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(m => m.name.toLowerCase().includes(q))
+  }
+
+  return result
+})
+
+// --- Actions commande ---
+async function handleCreateOrder() {
+  await orderStore.createOrder(authStore.accessToken)
+  mealsError.value = ''
+}
+
+async function handleAddMeal(meal) {
+  if (!orderStore.hasActiveOrder) {
+    mealsError.value = "Créez d'abord la commande avant d'ajouter des plats."
+    return
+  }
+  await orderStore.addMeal(authStore.accessToken, { ...meal, price: Number(meal.price) })
+}
+
+async function handleDecrement(meal_id) {
+  await orderStore.decrementMeal(authStore.accessToken, meal_id)
+}
+
+function handleValidateOrder() {
+  orderStore.clearOrder()
+}
+</script>
+
 <template>
   <Header />
   <div class="min-h-screen bg-gray-100 p-6 flex gap-6">
@@ -11,34 +95,43 @@ Desc : This file is used to create new orders
     <!-- Colonne gauche : menu -->
     <div class="flex-1 bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4">
 
-      <!-- En-tête menu -->
+      <!-- En-tête -->
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-gray-800">Menu</h2>
         <input
-            disabled
+            v-model="searchQuery"
+            type="text"
             placeholder="Rechercher un plat..."
-            class="border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-400 bg-gray-50 w-56 cursor-not-allowed"
+            class="border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white w-56"
         />
       </div>
 
       <!-- Filtres catégories -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <button
-            v-for="cat in categories"
-            :key="cat"
+            @click="activeCategory = 'tous'"
+            :class="activeCategory === 'tous' ? 'bg-orange-500 text-white border-orange-500' : 'text-gray-500 border-gray-200 hover:border-orange-300'"
             class="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
-            :class="cat === 'Tous' ? 'bg-orange-500 text-white border-orange-500' : 'text-gray-500 border-gray-200 hover:border-orange-300'"
         >
-          {{ cat }}
+          Tous
+        </button>
+        <button
+            v-for="cat in CATEGORIES"
+            :key="cat.key"
+            @click="activeCategory = cat.key"
+            :class="activeCategory === cat.key ? 'bg-orange-500 text-white border-orange-500' : 'text-gray-500 border-gray-200 hover:border-orange-300'"
+            class="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
+        >
+          {{ cat.label }}
         </button>
       </div>
 
       <!-- Grille des plats -->
       <div v-if="mealsLoading" class="text-gray-400 text-sm">Chargement...</div>
-      <div v-else-if="mealsError" class="text-red-400 text-sm">{{ mealsError }}</div>
+      <div v-else-if="mealsError && meals.length === 0" class="text-red-400 text-sm">{{ mealsError }}</div>
       <div v-else class="grid grid-cols-4 gap-4 overflow-y-auto">
         <div
-            v-for="meal in meals"
+            v-for="meal in filteredMeals"
             :key="meal.id"
             class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm"
         >
@@ -48,7 +141,9 @@ Desc : This file is used to create new orders
           <div class="p-3">
             <p class="text-sm font-semibold text-gray-800">{{ meal.name }}</p>
             <div class="flex items-center justify-between mt-1">
-              <p v-if="meal.is_available === 1" class="text-sm text-gray-500">{{ Number(meal.price).toFixed(2) }} €</p>
+              <p v-if="meal.is_available === 1" class="text-sm text-gray-500">
+                {{ Number(meal.price).toFixed(2) }} €
+              </p>
               <p v-else class="text-sm text-red-400">Indisponible</p>
               <button
                   v-if="meal.is_available === 1"
@@ -58,6 +153,11 @@ Desc : This file is used to create new orders
             </div>
           </div>
         </div>
+
+        <!-- Aucun résultat -->
+        <p v-if="filteredMeals.length === 0" class="col-span-4 text-center text-gray-400 text-sm py-8">
+          Aucun plat trouvé.
+        </p>
       </div>
     </div>
 
@@ -93,7 +193,9 @@ Desc : This file is used to create new orders
         </div>
 
         <!-- Erreur store -->
-        <p v-if="orderStore.error" class="text-red-400 text-xs">{{ orderStore.error }}</p>
+        <p v-if="orderStore.error || mealsError" class="text-red-400 text-xs">
+          {{ orderStore.error || mealsError }}
+        </p>
 
         <!-- Liste des plats dans le ticket -->
         <div class="flex flex-col gap-3 flex-1 overflow-y-auto">
@@ -162,52 +264,3 @@ Desc : This file is used to create new orders
 
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useAuthStore } from '../stores/authStore'
-import { useOrderStore } from '../stores/orderStore'
-import { fetchAllMealsService } from '../services/mealsService'
-import Header from "@/components/Header.vue";
-
-const authStore = useAuthStore()
-const orderStore = useOrderStore()
-
-const meals = ref([])
-const mealsLoading = ref(false)
-const mealsError = ref('')
-const clientNameInput = ref(orderStore.clientName)
-const categories = ['Tous', 'Burgers', 'Sides', 'Boissons', 'Desserts']
-
-onMounted(async () => {
-  mealsLoading.value = true
-  try {
-    meals.value = await fetchAllMealsService(authStore.accessToken)
-  } catch (err) {
-    mealsError.value = 'Impossible de charger les plats.'
-  } finally {
-    mealsLoading.value = false
-  }
-})
-
-async function handleCreateOrder() {
-  await orderStore.createOrder(authStore.accessToken)
-  mealsError.value = ''
-}
-
-async function handleAddMeal(meal) {
-  if (!orderStore.hasActiveOrder) {
-    mealsError.value = 'Créez d\'abord la commande avant d\'ajouter des plats.'
-    return
-  }
-  await orderStore.addMeal(authStore.accessToken, { ...meal, price: Number(meal.price) })
-}
-
-async function handleDecrement(meal_id) {
-  await orderStore.decrementMeal(authStore.accessToken, meal_id)
-}
-
-function handleValidateOrder() {
-  orderStore.clearOrder()
-}
-</script>
