@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div class="flex h-screen">
     <!-- Panneau gauche -->
     <div class="w-1/2 bg-orange-500 flex flex-col justify-between p-12 text-white">
@@ -100,6 +101,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/authStore'
 import { createEmployeeService } from '../services/employeeService'
+import Header from "@/components/Header.vue";
 
 const authStore = useAuthStore()
 
